@@ -1,0 +1,150 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,101,51)
+  Background = Color.Black
+  Icon = Picture["icon.png"]
+  Resizable = False
+  { frConexion Frame
+    MoveScaled(1,1,54,38)
+    Foreground = Color.White
+    Text = ("Conexión:")
+    { txPuerto TextBox
+      MoveScaled(10,3,21,4)
+      ToolTip = ("Puerto en el que está conectado el Arduino")
+      Text = ("/dev/ttyUSB0")
+    }
+    { Label1 Label
+      MoveScaled(2,3,8,4)
+      Text = ("Puerto:")
+    }
+    { Label2 Label
+      MoveScaled(2,8,11,4)
+      Text = ("Velocidad:")
+    }
+    { cbVelocidad ComboBox
+      MoveScaled(12,8,16,4)
+      ToolTip = ("Velocidad de conexión")
+      ReadOnly = True
+      List = [("300"), ("600"), ("1200"), ("2400"), ("4800"), ("9600"), ("14400"), ("19200"), ("28800"), ("38400"), ("57600"), ("115200")]
+    }
+    { btConectar Button
+      MoveScaled(2,14,17,5)
+      Enabled = False
+      ToolTip = ("Conectar al Arduino")
+      Text = ("Conectar")
+      Picture = Picture["icon:/24/connect"]
+    }
+    { btDesconectar Button
+      MoveScaled(21,14,17,5)
+      Enabled = False
+      ToolTip = ("Desconectar del Arduino")
+      Text = ("Desconectar")
+      Picture = Picture["icon:/24/disconnect"]
+    }
+    { txSalida TextArea
+      MoveScaled(2,21,51,16)
+      ToolTip = ("Muestra la información recibida/enviada")
+      ReadOnly = True
+      ScrollBar = Scroll.Vertical
+    }
+  }
+  { sPort #SerialPort
+    #MoveScaled(43,13)
+    FlowControl = SerialPort.None
+    PortName = "/dev/ttyACM0"
+    Speed = 9600
+  }
+  { Frame1 Frame
+    MoveScaled(56,1,44,49)
+    Foreground = Color.White
+    ToolTip = ("Muestra información recibida de los sensores")
+    Text = ("Sensores:")
+    { Label3 Label
+      MoveScaled(2,3,5,4)
+      Text = ("Luz:")
+    }
+    { pbLuz ProgressBar
+      MoveScaled(2,7,41,4)
+      Enabled = False
+      ToolTip = ("Nivel de luz")
+    }
+    { Termometro1 Termometro
+      MoveScaled(2,16,10,32)
+      Enabled = False
+      Background = Color.White
+      ToolTip = ("Temperatura")
+      Value = 0
+      ColorBar = Color.Red
+      MaxValue = 40
+      NegValue = 0
+    }
+    { Label4 Label
+      MoveScaled(2,12,13,4)
+      Text = ("Temperatura:")
+    }
+    { txTemp TextBox
+      MoveScaled(14,16,9,4)
+      Enabled = False
+      Font = Font["Bold,+1"]
+      Background = Color.Black
+      Foreground = Color.White
+      ToolTip = ("Temperatura")
+      Alignment = Align.Center
+      ReadOnly = True
+    }
+    { Label5 Label
+      MoveScaled(15,31,13,4)
+      Text = ("Control Rele:")
+    }
+    { sbRele SwitchButton
+      MoveScaled(17,35,7,4)
+      Enabled = False
+      ToolTip = ("Enciende / Apaga Rele")
+    }
+    { Label6 Label
+      MoveScaled(14,21,10,4)
+      Text = ("Humedad:")
+    }
+    { pbHumedad ProgressBar
+      MoveScaled(14,25,29,4)
+      Enabled = False
+      ToolTip = ("Porcentaje de Humedad")
+    }
+    { tbModo ToggleButton
+      MoveScaled(28,33,15,4)
+      Enabled = False
+      ToolTip = ("Activa el modo automático del control del Rele")
+      Text = ("Automático")
+      Picture = Picture["icon:/24/brightness"]
+    }
+    { verBox VBox
+      MoveScaled(16,40,27,8)
+      Visible = False
+      { sbLimite SpinBar
+        MoveScaled(1,2,25,4)
+        ToolTip = ("Limite de luz para activar el Rele")
+        Value = 50
+        MaxValue = 100
+        Text = ("Límite activación")
+        Step = 1
+      }
+    }
+    { tRele #Timer
+      #MoveScaled(34,16)
+      Delay = 5000
+    }
+  }
+  { btSalir Button
+    MoveScaled(9,42,16,5)
+    ToolTip = ("Salir de la aplicación")
+    Text = ("Salir")
+    Picture = Picture["icon:/24/quit"]
+  }
+  { btAcerca Button
+    MoveScaled(31,42,16,5)
+    ToolTip = ("Información del Autor")
+    Text = ("Acerca de") & "..."
+    Picture = Picture["icon:/24/info"]
+  }
+}

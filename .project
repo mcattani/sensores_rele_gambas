@@ -1,0 +1,17 @@
+# Gambas Project File 3.0
+Title=Arduino - Sensores & Actuadores
+Startup=FMain
+Icon=icon.png
+Version=0.8.18
+Component=gb.image
+Component=gb.gtk3
+Component=gb.form
+Component=gb.desktop
+Component=gb.settings
+Component=gb.net
+Description="Aplicación que recibe información de los sensores (DHT11 y LDR) conectados a un Arduino. También envía comando para controlar la activación de un Rele."
+Authors="The Nerdy Apprentice"
+TabSize=2
+Language=es_AR
+Vendor=TheNerdyApprentice
+Packager=1

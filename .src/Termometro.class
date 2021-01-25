@@ -1,0 +1,206 @@
+' Gambas class file
+
+Export
+Inherits UserControl
+
+'constantes qui seront affichées
+Public Const _Properties As String = "*,Value=50,ColorBar=255,MaxValue=100,MinValue=0,NegValue=-30"
+Public Const _Group As String = "Form"
+Public Const _DefaultSize As String = "6,24"
+
+'déclaration des objets
+Private pnl As New Panel[] 'tableau de panel
+Private $hDraArea As New DrawingArea(Me) As "DraArea"
+Private $hConteneurReservoir As New DrawingArea(Me) As "Reservoir"
+Private $hCGrad As New DrawingArea(Me) As "CGraduation"
+
+'variables interne
+Private $iCouleurBar As Integer 'récupère la couleur à afficher dans le tube
+Private $iVal As Integer = 50 'valeur par défaut de $iVal
+Private $iValeurMax As Integer = 100 'valeur par défaut de $iValeurMax
+Private $iValeurMin As Integer = 0 'valeur par défaut de $iValeurMin
+Private $iValeurNeg As Integer = -30 'valeur de décalage négatif
+
+'propriétés qui seront affichées dans l'IDE
+Property ColorBar As Integer ''Retourne ou définit la couleur du glisseur.
+Property MaxValue As Integer ''Retourne ou définit la valeur maximale d'un glisseur.
+Property MinValue As Integer ''Retourne ou définit la valeur minimale d'un glisseur.
+Property Value As Integer ''Retourne ou définit la valeur de la barre de progression. Cette valeur doit être comprise entre 0 et 100.
+Property NegValue As Integer ''Retourne ou définit la valeur négative qui sera appliquée à l'ensemble des valeurs MinValue et MaxValue.
+
+Public Sub _new() 'création et initialisation composants
+
+  Dim i As Integer
+
+  For i = 0 To 7 'nbr de panels qui sont créés
+    pnl.Add(Null, pnl.Count) 'on ajoute un panel et on le compte
+    pnl[i] = New Panel(Me) As "GrPnl" 'le composant (comptabilisée par i) est un nouveau composant qui est créé dans le formulaire
+    pnl[i].Tag = i 'on met le n° du composant (i) dans la propriété .tag
+    Select i 'selon i (selon le numéro du panel)
+      Case 0 'contient tout le thermomètre c'est ici qu'on pourra afficher une image en transparence
+        With pnl[i]
+          .Arrangement = 5
+          .Border = Border.Plain
+        End With
+      Case 1 'contient tout les éléments du thermomètre
+        With pnl[i]
+          .Arrangement = 1
+          .Expand = True
+        End With
+      Case 2 'contient la partie gauche du thermomètre (inutilisé)
+      Case 3 'contient la partie centrale (pnl du haut, tube, réservoir et pnl du bas)
+        With pnl[i]
+          .Arrangement = 2
+          .Expand = True
+          .Reparent(pnl[1], 0, 0)
+        End With
+      Case 4 'contient la partie droite du thermomètre (inutilisé)
+      Case 5 'contient la partie haute (a mettre dans la partie centrale)
+        With pnl[i]
+          .Reparent(pnl[3], 0, 0)
+        End With
+      Case 6 'contient le tube (a mettre dans la partie centrale)
+        With pnl[i]
+          .Arrangement = 2
+          .Expand = True
+          .Reparent(pnl[3], 0, 0) 'on place le contneur du tube
+          $hDraArea.Reparent(pnl[6], 0, 0) 'on place la drawingarea du tube
+          $hDraArea.Expand = True
+          $hCGrad.Reparent($hDraArea, 0, 0) 'on place la drawingarea des graduations
+        End With
+      Case 7 'contient le réservoir (a mettre dans la partie centrale)
+        With pnl[i]
+          .Arrangement = 5
+          .H = pnl[3].W + (pnl[5].H * 2)
+          .Reparent(pnl[3], 0, 0) 'on place le conteneur du réservoir
+          .W = pnl[3].W
+        End With
+    End Select
+  Next
+  ' pnl[0] contient tout le thermomètre (c'est ici qu'on pourra afficher une image en transparence par exemple)
+  ' pnl[1] contient tout les éléments du thermomètre
+  ' pnl[2] contient la partie gauche du thermomètre (inutilisé)
+  ' pnl[3] contient la partie centrale (contient le réservoire ($hConteneurReservoir) et le tube ($hDraArea))
+  ' pnl[4] contient la partie droite du thermomètre (inutilisé)
+  ' pnl[5] contient la partie haute (a mettre dans la partie centrale)
+  ' pnl[6] contient la partie basse (a mettre dans la partie centrale)
+  ' pnl[7] contient le réservoir (a mettre dans la partie centrale)
+  With $hConteneurReservoir
+    .H = pnl[7].H
+    .Reparent(pnl[7], 0, 0) 'on place la drawingarea du réservoir
+    .W = pnl[7].W
+  End With
+
+End
+
+Public Sub DraArea_Draw() 'on dessine le tube du thermomètre
+
+  Dim i, iHauteur As Integer 'est la hauteur de la barre
+  Dim k As Single 'est utilisé pour le décalage entre les graduation selon la hauteur de $hCGrad
+
+  iHauteur = -($hDraArea.H / 100 * Me.Value) 'on récupère la hauteur du tube
+  K = pnl[6].H / ($iValeurMax + $iValeurMin) 'décalage
+  With $hCGrad 'pour écrire les graduations
+    .H = pnl[6].H 'on reprend la hauteur du panel
+    .W = pnl[6].W 'on reprend la largeur du panel
+    With Paint 'on trace les graduations et le texte
+      For i = $iValeurMin To $iValeurMax Step 10 'tracé des dizaines par 10
+        .MoveTo(0, $hCGrad.H - k * i) 'on remonte de 10
+        .LineTo(pnl[6].W / 2 - ($hDraArea.W / 30), $hCGrad.H - k * i) 'on trace vers la droite
+        .Text(i + $iValeurNeg, 5, $hCGrad.H - k * i) 'on écrit la valeur
+      Next
+      For i = $iValeurMin + 5 To $iValeurMax - 5 Step 10 'tracé des dizaines par 5
+        .MoveTo(pnl[6].W / 2 - 2, $hCGrad.H - k * i) 'on remonte de 5
+        .LineTo(pnl[6].W, $hCGrad.H - k * i) 'on trace vers la droite
+        .Text(i + $iValeurNeg, pnl[6].W - 25, $hCGrad.H - k * i) 'on écrit la valeur
+      Next
+      For i = $iValeurMin To $iValeurMax 'tracé des unités
+        .MoveTo(pnl[6].W / 3, $hCGrad.H - k * i) 'on remonte de 1
+        .LineTo(pnl[6].W / 2 - ($hDraArea.W / 30), $hCGrad.H - k * i) 'on trace de gauche a droite (a gauche)
+        .MoveTo(pnl[6].W / 2 - 2, $hCGrad.H - k * i) 'on déplace vers la droite
+        .LineTo(pnl[6].W / 3 + pnl[6].W / 3.5, $hCGrad.H - k * i) 'on trace de gauche a droite (a droite)
+      Next
+      .Brush = Paint.Color(&H00000000) 'couleur d'écriture du texte et des graduations
+      .Stroke()
+    End With
+  End With
+  With Paint
+    'Dessin du tube
+    .FillRect($hDraArea.W / 2 - ($hDraArea.W / 30), $hDraArea.H, $hDraArea.W / 30, iHauteur, $iCouleurBar)
+    .Stroke()
+  End With
+
+End
+
+Public Sub Reservoir_Draw() 'on dessine le réservoir du thermomètre
+
+  With Paint
+    'dessin du réservoir
+    .Ellipse($hConteneurReservoir.W / 2 - (($hConteneurReservoir.W / 7) / 1.5), 0, $hConteneurReservoir.W / 7, $hConteneurReservoir.W / 7)
+    .Brush = Paint.Color($iCouleurBar)
+    .Fill(True)
+    .Stroke
+  End With
+
+End
+
+Private Function ColorBar_Read() As Integer
+
+  Return $iCouleurBar 'retourne la valeur contenue dans $iCouleurBar
+
+End
+
+Private Sub ColorBar_Write(Value As Integer)
+
+  $iCouleurBar = Value 'écrit la valeur dans $iCouleurBar
+
+End
+
+Private Function MaxValue_Read() As Integer
+
+  Return $iValeurMax 'retourne la valeur contenue dans $iValeurMax
+
+End
+
+Private Sub MaxValue_Write(Value As Integer)
+
+  $iValeurMax = Value 'écrit la valeur dans $iValeurMax
+
+End
+
+Private Function MinValue_Read() As Integer
+
+  Return $iValeurMin 'retourne la valeur contenue dans $iValeurMin
+
+End
+
+Private Sub MinValue_Write(Value As Integer)
+
+  $iValeurMin = Value 'écrit la valeur dans $iValeurMin
+
+End
+
+Private Function NegValue_Read() As Integer
+
+  Return $iValeurNeg 'retourne la valeur contenue dans $iValeurNeg
+
+End
+
+Private Sub NegValue_Write(Value As Integer)
+
+  $iValeurNeg = Value 'écrit la valeur dans $iValeurNeg
+
+End
+
+Private Function Value_Read() As Integer
+
+  Return $iVal 'retourne la valeur de $iVal
+
+End
+
+Private Sub Value_Write(Value As Integer)
+
+  $iVal = Value 'écrit la valeur dans $iVal
+  $hDraArea.Refresh() 'on rafraichis l'affichage de la $hDraArea
+
+End

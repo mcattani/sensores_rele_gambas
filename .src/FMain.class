@@ -1,0 +1,227 @@
+' Gambas class file
+
+' Programa que recibe información de los sensores conectados en el Arduino (DHT + LDR)
+' También envía comando para controlar el Rele
+' Más información: https://thenerdyapprentice.blogspot.com/
+
+Public Sub Form_Open()
+FMain.Text = Application.Name & " v" & Application.Version
+If sPort.Status = Net.Active Then sPort.Close ' Cerramos el puerto si está abierto
+btConectar.Enabled = True
+
+'Recuperamos valores guardados
+cbVelocidad.Index = Settings["Velocidad", 5]
+txPuerto.Text = Settings["Puerto", "/dev/ttyUSB0"]
+sblimite.value = Settings["ValorLimite", 50]
+
+End
+
+Public Sub Form_KeyPress()
+' Si se presiona la tecla ESC guardamos los valores ingresados por el usuario para traerlos cuando se inicie de nuevo la aplicación y salimos
+  If Key.code = Key.Esc Then 
+    GuardarValores()
+    Quit
+  Endif
+
+End
+
+
+Public Sub btSalir_Click()
+' Guardamos los valores para traerlos cuando se inicie nuevamente la aplicación y cerramos
+GuardarValores()
+Quit
+ 
+
+End
+
+Public Sub btConectar_Click()
+
+If sPort.Status = Net.Active Then sPort.Close ' Cerramos el puerto si está abierto
+
+'Chequemos que haya un puerto escrito en el textbox y lo asignamos
+If txPuerto.Text = "" Then
+  Message.Warning("Debe elegir un puerto para realizar la conexión")
+  Return
+  Else
+    sPort.PortName = txPuerto.Text
+    sPort.Speed = cbVelocidad.Text ' Asignamos también la velocidad.
+Endif
+
+'Conectamos
+Try sPort.Open()
+If Error Then
+  Message.Warning("No se ha podido conectar con el puerto - " & Error.Text)
+  Return
+Endif
+
+If sPort.Status = Net.Active Then ' Si la conexión es exitosa
+  txSalida.Text = txSalida.Text & "Conectado..." & gb.CrLf
+Endif
+
+'Habilitamos botón y controles
+btDesconectar.Enabled = True
+pbLuz.Enabled = True
+Termometro1.Enabled = True
+txTemp.Enabled = True
+sbRele.Enabled = True
+tbModo.Enabled = True
+tRele.Enabled = False
+
+
+End
+
+Public Sub btDesconectar_Click()
+
+  sPort.Close ' Cerramos el puerto
+  txSalida.Text = txSalida.Text & "Desconectado..." & gb.CrLf
+    
+  'Desactivamos botón y controles
+  btDesconectar.Enabled = False
+  pbLuz.Enabled = False
+  Termometro1.Enabled = False
+  txTemp.Enabled = False
+  sbRele.Enabled = False
+  tbModo.Enabled = False
+  verBox.Visible = False
+  tRele.Enabled = False
+    
+    
+End
+
+Public Sub sPort_Read() ' En esta rutina leemos lo que llega por el puerte serie y lo enviamos a la salida
+Dim RX As String, tRX As String, RXl As String, RXt As String, RXh As String
+
+
+Read #sPort, RX, Lof(sPort)
+txSalida.Text = txSalida.Text & RX 
+
+tRX = Left(RX, 1) 'Recortamos el primer valor de la cadena recibida --> esto nos dice el tipo de datos que vamos a recibir
+
+Select tRX
+  Case "l"
+    RXl = Right(Trim(RX), 2) 'Obtenemos los dos valores de la derecha y recortamos los espacios en blanco
+    ' Si el valor recibido es < a 10 (que es el valor mínimo que envía el sketch de Arduino) ponemos en 0 la barra de luz dado que es = a casi total oscuridad
+    If CInt(RXl) > 10 Then 
+    pbLuz.Value = CInt(RXl) / 100 'Convertimos el valor a entero y dividimos por 100
+     Else
+       pbLuz.Value = 0
+    Endif
+
+  Case "t"
+    RXt = Right(Trim(RX), 2) 'Obtenemos los dos valores de la derecha y recortamos los espacios en blanco
+    Termometro1.Value = (CInt(RXt) * 100) / Termometro1.MaxValue ' Convertimos el valor para que sea mostrado por la clase Termometro
+    txTemp.Text = CInt(RXt) & " Cº"
+    
+  Case "h"
+    RXh = Right(Trim(RX), 2) 'Obtenemos los dos valores de la derecha y recortamos los espacios en blanco
+    pbHumedad.value = CInt(RXh) / 100 'Convertimos el valor a entero y dividimos por 100
+    
+End Select
+
+  
+End
+
+Public Sub txSalida_Change() ' Hacemos scroll down automaticamente en el textbox de salida.
+
+  'txSalida.pos = txSalida.Length
+  txSalida.EnsureVisible
+  
+
+End
+
+Public Sub txSalida_DblClick()
+  txSalida.Text = "" ' Por si queremos limpiar la salida de información
+
+End
+
+Public Sub GuardarValores() ' Rutina para guardar los valores utilizados al cerrar el programa
+Settings["Puerto"] = txPuerto.Text
+Settings["Velocidad"] = cbVelocidad.Index
+Settings["ValorLimite"] = sblimite.Value
+  
+End
+
+
+Public Function Rele(Estado As Boolean) ' Función para enviar estado del Rele al Arduino
+' Si el estado es FALSO (se apaga el Rele) se envía el comando RA, si es TRUE se manda RE
+
+If Estado = False Then
+  If sPort.Status = Net.Active Then
+  Try Print #sPort, "RA" & "\n" 'Enviamos los datos con el salto de línea \n al final
+  Print "Rele apagado"
+  Else
+    Message.Warning("El puerto se ha cerrado!, debe volver a establecer la conexión")
+    Return
+  Endif
+Endif
+
+If Estado = True Then
+  If sPort.Status = Net.Active Then
+  Try Print #sPort, "RE" & "\n"
+  Print "Rele encendido"
+  Else
+    Message.Warning("El puerto se ha cerrado!, debe volver a establecer la conexión")
+    Return
+  Endif
+Endif
+
+End
+
+Public Sub sbRele_Click()
+' Según el valor del switch llamamos a la función con el valor correspondiente
+  If sbRele.Value = False Then
+    Rele(False)
+    verBox.Visible = False
+    txTemp.Enabled = False
+    tbModo.Value = False
+    
+  Endif
+
+  If sbRele.Value = True Then
+    Rele(True)
+  Endif
+
+End
+
+Public Sub Form_Close()
+
+  GuardarValores()
+
+End
+
+Public Sub tbModo_Click() 
+' Si presionamos el modo automático muestra el frame para cambiar el límite de activación del Rele,
+' También enciende el Timer y cambia el valor del switch a positivo por si no lo estaba, si desconectamos el modo automático paramos todo
+
+  If tbModo.Value = True Then
+    verBox.Visible = True
+    tRele.Enabled = True
+    sbRele.Value = True
+    Else
+      verBox.Visible = False
+      tRele.Enabled = False
+      sbRele.Value = False
+  Endif
+    
+End
+
+Public Sub tRele_Timer()
+'Comaparamos el valor del sensor de luz con el del límite y enviamos el comando que prende/apaga el Rele
+
+If (sbLimite.Value / 100) > pbLuz.Value Then ' /100 porque los valores de sblimite van de 0 a 1
+  Rele(True)
+  Print sbLimite.Value
+  Print pbLuz.Value  
+    Else 
+  Rele(False)
+     
+Endif
+
+End
+
+
+Public Sub btAcerca_Click()
+
+  frmAbout.Show
+
+End
