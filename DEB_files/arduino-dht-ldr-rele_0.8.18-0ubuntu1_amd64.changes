@@ -1,0 +1,34 @@
+Format: 1.8
+Date: Mon, 25 Jan 2021 12:00:00 +0000
+Source: arduino-dht-ldr-rele
+Binary: arduino-dht-ldr-rele
+Architecture: source all
+Version: 0.8.18-0ubuntu1
+Distribution: unstable
+Urgency: low
+Maintainer: The Nerdy Apprentice <marianocattani@gmail.com>
+Changed-By: The Nerdy Apprentice <marianocattani@gmail.com>
+Description:
+ arduino-dht-ldr-rele - Aplicación que recibe información de los sensores (DHT11 y LDR...
+Changes:
+ arduino-dht-ldr-rele (0.8.18-0ubuntu1) unstable; urgency=low
+ .
+   * Lanzamiento inicial
+Checksums-Sha1:
+ 0f6679853b164d924df54fd02c83445eb363e822 1313 arduino-dht-ldr-rele_0.8.18-0ubuntu1.dsc
+ 0fdcec7ac8f7d1abfe7446ea04cc9f4a9ca94168 83096 arduino-dht-ldr-rele_0.8.18.orig.tar.gz
+ 1fb7bc539424174c95a22ae7e8737506f08f6910 1501 arduino-dht-ldr-rele_0.8.18-0ubuntu1.diff.gz
+ 53aaed3be7378a06c6cf38cdaf531a2ad110dfbe 68644 arduino-dht-ldr-rele_0.8.18-0ubuntu1_all.deb
+ b0bc9634fffdce69f3aa520834e8b863c22b4bf2 10074 arduino-dht-ldr-rele_0.8.18-0ubuntu1_amd64.buildinfo
+Checksums-Sha256:
+ e22fdd332c84bdb6f0ce4c37e20da0868b3d3aa07955069e1ce3d29b6d58e66b 1313 arduino-dht-ldr-rele_0.8.18-0ubuntu1.dsc
+ 04f1f9c7ee2d268a259cc812e1df81a5e23c6dd3d9e9d472031a402230407ae4 83096 arduino-dht-ldr-rele_0.8.18.orig.tar.gz
+ 5dc74d854547426c691b86a0c1f5f253887d66ef5ac17d1ea37b56bdf8e6bc99 1501 arduino-dht-ldr-rele_0.8.18-0ubuntu1.diff.gz
+ 50870d142040f861b453c5c6d387d044f7ac089dc61576c70de451d178d0151f 68644 arduino-dht-ldr-rele_0.8.18-0ubuntu1_all.deb
+ 4d0ecdac0f3028147b0610692d94792af84fe6b3b24b0823493647b106adbf07 10074 arduino-dht-ldr-rele_0.8.18-0ubuntu1_amd64.buildinfo
+Files:
+ eaee49f9ea93e62eef78d052265d1c1a 1313 contrib/admin optional arduino-dht-ldr-rele_0.8.18-0ubuntu1.dsc
+ e69c574428d5c9cd8a3322de7e8f2cb7 83096 contrib/admin optional arduino-dht-ldr-rele_0.8.18.orig.tar.gz
+ c1be35db5546ad1a6b001cc4ccfb2569 1501 contrib/admin optional arduino-dht-ldr-rele_0.8.18-0ubuntu1.diff.gz
+ ce1e1de16454bcc184dff64580002549 68644 contrib/admin optional arduino-dht-ldr-rele_0.8.18-0ubuntu1_all.deb
+ 40f085a26180b69a5c346af31984367a 10074 contrib/admin optional arduino-dht-ldr-rele_0.8.18-0ubuntu1_amd64.buildinfo
